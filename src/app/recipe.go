@@ -3,7 +3,20 @@ package main
 import (
 	"fmt"
 	"local/recipes/config"
+	"log"
+	"strings"
 )
+
+var colors = map[string]string{
+	"HEADER":    "\033[95m",
+	"OKBLUE":    "\033[94m",
+	"OKGREEN":   "\033[92m",
+	"WARNING":   "\033[93m",
+	"FAIL":      "\033[91m",
+	"ENDC":      "\033[0m",
+	"BOLD":      "\033[1m",
+	"UNDERLINE": "\033[4m",
+}
 
 // cuisines := make([]string, 0)
 // ing := make([]string, 0)
@@ -42,6 +55,29 @@ func main() {
 	client := config.ConnectToMongo()
 	coll := config.CreateCollection(client)
 	fmt.Println("Collection `", coll.Name(), "` created!")
+
+	choice := menu()
+	switch choice {
+	case 1:
+		fmt.Println("<view recipe>")
+		//ask user for recipe name or other filter
+		//print recipe to screen
+	case 2:
+		fmt.Println("<add recipe>")
+		//provide prompts to fill out Recipe struct values
+		//insert into db
+	case 3:
+		fmt.Println("<update recipe>")
+		//ask user for existing recipe name to update
+		//ask what part of recipe needs updating
+		//change values and update db
+	case 4:
+		fmt.Println("<delete recipe>")
+		//ask user for existing recipe name to delete
+		//remove from db
+	case 0:
+		fmt.Println("Quiting Program...")
+	}
 
 	// r1 := Recipe{
 	// 	name:        "Smoky Chickpea & Pepper Shakshuka\nwith Feta & Mint",
@@ -120,18 +156,37 @@ func main() {
 	// printRecipe(r1)
 }
 
-func printRecipe(rec Recipe) {
+func menu() int {
 
-	var colors = map[string]string{
-		"HEADER":    "\033[95m",
-		"OKBLUE":    "\033[94m",
-		"OKGREEN":   "\033[92m",
-		"WARNING":   "\033[93m",
-		"FAIL":      "\033[91m",
-		"ENDC":      "\033[0m",
-		"BOLD":      "\033[1m",
-		"UNDERLINE": "\033[4m",
+	var choice int
+
+	//menu
+	for {
+		fmt.Println(strings.Repeat("#", 15))
+		fmt.Printf("\nBA-Recipes\n\n")
+		fmt.Println("1 - View Recipe")
+		fmt.Println("2 - Add Recipe")
+		fmt.Println("3 - Update Recipe")
+		fmt.Println("4 - Delete Recipe")
+		fmt.Printf("0 - Quit\n\n")
+		fmt.Println(strings.Repeat("#", 15))
+
+		//user input
+		fmt.Print("Enter choice: ")
+		_, err := fmt.Scanf("%d", &choice)
+		if err != nil {
+			log.Fatal(err)
+		} else if choice >= 0 && choice <= 4 {
+			break
+		} else {
+			fmt.Printf("%vPlease enter a valid menu option.%v\n", colors["FAIL"], colors["ENDC"])
+		}
 	}
+
+	return choice
+}
+
+func printRecipe(rec Recipe) {
 
 	fmt.Printf("%s", colors["OKBLUE"])
 	fmt.Printf("\n---------------------------------------------\n")
